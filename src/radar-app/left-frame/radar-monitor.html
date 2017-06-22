@@ -1,0 +1,55 @@
+<link rel="import" href="../../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
+
+<!--<link rel="import" href="show_img_l1.html">-->
+<dom-module id='radar-monitor'>
+    <template>
+        <style>
+            paper-progress {
+                display: absolute;
+                width: 100%;
+                --paper-progress-active-color: #B2DFDB;
+                --paper-progress-container-color: #9E9E9E;
+                --paper-progress-indeterminate-cycle-duration: 5s;
+            }
+            .curr-time{
+                text-align: center;
+                padding-top: 2.5%;
+            }
+
+            
+        </style>
+
+        <iron-ajax auto url="http://bigmaster.igridproject.info:19080/v0.1/storage/igrid.rainradar.nkm/objects?last=1" handle-as="json"
+            on-response="_loadimgcomplete" last-response="{{imgList}}"></iron-ajax>
+
+
+        <template is="dom-repeat" items="{{imgList}}">
+            <div>
+                <paper-progress indeterminate bottom-item></paper-progress>                
+                <img src="data:image/png;base64,{{item.data.data}}" width="100%">
+            </div>
+            
+            <div class='curr-time'>[[ts]]</div>
+
+        </template>
+            
+
+    </template>
+    <script>
+        Polymer({
+            is: 'radar-monitor',
+            properties: {
+                ts: Number,
+                imgList: JSON,
+
+            },
+            _loadimgcomplete: function (e) {
+                this.ts = this.imgList[0].meta._ts;
+                // convert
+                this.ts = new Date(this.ts * 1000);
+                // console.log(this.ts);
+            }
+        });
+    </script>
+</dom-module>

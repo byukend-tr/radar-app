@@ -1,0 +1,89 @@
+<link rel="import" href="../../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
+
+
+<dom-module id='radar-control'>
+    <template>
+        <style>
+            /*app-drawer-layout:not([narrow]) [drawer-toggle] {
+                    display: none;
+                
+                }*/
+
+            app-drawer {
+                --app-drawer-content-container: {
+                    position: fixed;
+                    background-color: whitesmoke;
+                    /*--app-drawer-scrim-background: rgba(0, 0, 100, 0.8);*/
+                }
+            }
+
+            .drawer li {
+                text-align: left;
+                padding-left: 12%;
+                padding-bottom: 10%;
+            }
+
+            .drawer h2 {
+                text-align: left;
+                padding-left: 10%;
+            }
+
+            img {
+                position: absolute;
+                clip: rect(0px, 325px, 295px, 28px);
+            }
+
+            .ani {
+                margin: auto;
+                width: 33%;
+                padding: 10px;
+            }
+        </style>
+        <app-drawer-layout force-narrow>
+            <app-drawer slot=drawer align=end>
+                <div class=drawer raised>
+                    <h2>Timeline
+                        <iron-icon icon="timeline"></iron-icon>
+                    </h2>
+
+                    <li>The past hour</li>
+                    <li>The past 2 hours</li>
+                    <li>The past day</li>
+                    <li>The past week</li>
+                    <li>The beginning of time</li>
+                </div>
+            </app-drawer>
+            <app-header>
+                <app-toolbar>
+                    <div main-title>Test</div>
+                    <paper-icon-button class='option' icon="menu" drawer-toggle></paper-icon-button>
+
+                </app-toolbar>
+            </app-header>
+            <div class='main'>
+                <iron-ajax auto url="http://bigmaster.igridproject.info:19080/v0.1/storage/igrid.rainradar.nkm/objects?last=3" handle-as="json"
+                    on-response="_loadimgcomplete" last-response="{{imgList}}"></iron-ajax>
+                <div class='ani'>
+                    <template is="dom-repeat" items="{{imgList}}">
+                        <img src="data:image/png;base64,{{item.data.data}}" width="30%">
+                    </template>
+                </div>
+            </div>
+        </app-drawer-layout>
+
+
+
+    </template>
+    <script>
+        Polymer({
+            is: 'radar-control',
+            properties: {
+                imgList: JSON,
+            },
+            _loadimgcomplete: function (e) {
+
+            }
+        });
+    </script>
+</dom-module>
