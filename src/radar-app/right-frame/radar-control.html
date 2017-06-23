@@ -1,14 +1,23 @@
 <link rel="import" href="../../../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
-
+<link rel="import" href="../../../bower_components/paper-slider/paper-slider.html">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
 <dom-module id='radar-control'>
     <template>
         <style>
+             :host {
+                --app-grid-columns: 2;
+                --app-grid-item-height: 560px;
+            }
             /*app-drawer-layout:not([narrow]) [drawer-toggle] {
                     display: none;
                 
                 }*/
+
+            app-toolbar {
+                color: white;
+            }
 
             app-drawer {
                 --app-drawer-content-container: {
@@ -28,16 +37,39 @@
                 text-align: left;
                 padding-left: 10%;
             }
-
-            img {
-                position: absolute;
+            /*img {
+                position: fixed;
                 clip: rect(0px, 325px, 295px, 28px);
-            }
+                border-radius: 50%;
+            }*/
 
             .ani {
-                margin: auto;
-                width: 33%;
-                padding: 10px;
+                margin: 0;
+                width: 100%;
+                padding-left: 60px;
+            }
+
+            .crop {
+                display: inline-block;
+                position: relative;
+                width: 400px;
+                height: 400px;
+                overflow: hidden;
+                border-radius: 50%;
+            }
+
+            .crop img {
+                width: auto;
+                height: 110%;
+                margin-left: -40px;
+                margin-top: -18px;
+            }
+
+            paper-slider {
+                --paper-slider-height: 6px;
+                --paper-slider-active-color: red;
+                --paper-slider-knob-color: red;
+                width: 400px;
             }
         </style>
         <app-drawer-layout force-narrow>
@@ -62,13 +94,22 @@
                 </app-toolbar>
             </app-header>
             <div class='main'>
-                <iron-ajax auto url="http://bigmaster.igridproject.info:19080/v0.1/storage/igrid.rainradar.nkm/objects?last=3" handle-as="json"
+                <iron-ajax auto url="http://bigmaster.igridproject.info:19080/v0.1/storage/igrid.rainradar.nkm/objects?last=250" handle-as="json"
                     on-response="_loadimgcomplete" last-response="{{imgList}}"></iron-ajax>
-                <div class='ani'>
-                    <template is="dom-repeat" items="{{imgList}}">
-                        <img src="data:image/png;base64,{{item.data.data}}" width="30%">
-                    </template>
+
+                <div class="ani">
+                    <div class="crop">
+                        <img src="data:image/png;base64,{{image}}">
+                    </div>
+                    <!--<template is="dom-repeat" items="{{imgList}}">
+                        <img src="data:image/png;base64,{{item.data.data}}" width="26%">
+                    </template>-->
+                    <div class='slide'>
+                        <paper-slider value={{ratio}} max=[[max]] pin=true></paper-slider>
+                    </div>
                 </div>
+
+
             </div>
         </app-drawer-layout>
 
@@ -80,10 +121,27 @@
             is: 'radar-control',
             properties: {
                 imgList: JSON,
+                image: String,
+                max: Number,
+                ratio: Number,
+
             },
             _loadimgcomplete: function (e) {
-
+                this.max = this.imgList.length;
+                console.log(this.imgList.length);
+                this._play();
+            },
+            _play: function (i = 0) {
+                this.ratio = i;
+                this.async(function () {
+                    console.log(i)
+                    var ts = new Date(this.imgList[i].meta._ts * 1000);
+                    console.log(ts);
+                    this.image = this.imgList[i].data.data;
+                    if (i < this.imgList.length - 1) this._play(++i);
+                }.bind(this), 100);
             }
+
         });
     </script>
 </dom-module>
